@@ -1,0 +1,51 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// Constants for ultrasonic sensor pins
+const int trigPin = 8;
+const int echoPin = 7;
+
+// Constants for LCD I2C module
+const int lcdColumns = 16;
+const int lcdRows = 2;
+const int lcdAddress = 0x27; // I2C address of the LCD
+
+LiquidCrystal_I2C lcd(lcdAddress, lcdColumns, lcdRows);
+
+void setup() {
+  lcd.begin(lcdColumns, lcdRows);
+  lcd.backlight(); // Turn on the backlight
+
+  Serial.begin(9600);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+}
+
+void loop() {
+  // Trigger the ultrasonic sensor
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Measure the duration of the echo pulse
+  unsigned long duration = pulseIn(echoPin, HIGH);
+
+  // Calculate the distance in centimeters
+  float distanceCm = duration * 0.034 / 2;
+
+  // Display the distance on the LCD
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Distance: ");
+  lcd.print(distanceCm);
+  lcd.print(" cm");
+
+  // Print the distance to the Serial Monitor for debugging (optional)
+  Serial.print("Distance: ");
+  Serial.print(distanceCm);
+  Serial.println(" cm");
+
+  delay(1000); // Wait for a moment before taking the next measurement
+}
